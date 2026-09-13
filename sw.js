@@ -1,4 +1,4 @@
-const CACHE_NAME = 'korrank-v1';
+const CACHE_NAME = 'korrank-v2';
 const APP_SHELL = [
   './',
   './index.html',
