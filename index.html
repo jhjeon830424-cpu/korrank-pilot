@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>국어랭크 – 국어 읽기 등급전 (파일럿)</title>
+<link rel="icon" href="assets/mascot.jpg">
+<link rel="apple-touch-icon" href="assets/mascot.jpg">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#0f1220">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div id="app">
+
+  <header class="topbar">
+    <div class="brand"><span class="brand-text">📚 국어랭크</span> <span class="beta">PILOT</span></div>
+    <div class="topbar-actions">
+      <button id="btn-share-app" class="link-btn">공유하기</button>
+      <button id="btn-switch-profile" class="link-btn" hidden>프로필 전환</button>
+      <button id="btn-change-grade" class="link-btn" hidden>학년 변경</button>
+    </div>
+  </header>
+
+  <div id="inapp-banner" class="inapp-banner" hidden>
+    <p><b>카카오톡 브라우저</b>로 열려 있어요! 홈 화면 추가와 이미지 저장이 잘 안 될 수 있어요.</p>
+    <div class="inapp-banner-actions">
+      <button id="btn-open-external">다른 브라우저로 열기</button>
+      <button id="btn-dismiss-banner" class="ghost-btn">닫기</button>
+    </div>
+  </div>
+
+  <div id="install-banner" class="inapp-banner install-banner" hidden>
+    <p id="install-banner-text">홈 화면에 설치하면 앱처럼 바로 열 수 있어요!</p>
+    <div class="inapp-banner-actions">
+      <button id="btn-install-app">설치하기</button>
+      <button id="btn-dismiss-install" class="ghost-btn">나중에</button>
+    </div>
+  </div>
+
+  <!-- 온보딩: 학년 선택 -->
+  <section id="screen-onboarding" class="screen">
+    <div class="mascot-hero"><img src="assets/npc_owl.jpg" alt="국어랭크 마스코트"></div>
+    <h1>짧은 글 읽고, 오늘도 한 티어 올려볼까요?</h1>
+    <p class="sub">매일 짧은 글 하나 읽고 문제 10개. 무료. 읽을수록 등급이 오릅니다.</p>
+    <div id="nickname-wrap" class="nickname-wrap">
+      <input id="nickname-input" type="text" maxlength="8" placeholder="이름을 입력하세요 (예: 민준)" class="nickname-input">
+      <p id="nickname-error" class="nickname-error" hidden>이름을 먼저 입력해주세요!</p>
+    </div>
+    <div class="grade-pick">
+      <button class="grade-card" data-grade="1">
+        <div class="grade-num">초1</div>
+        <div class="grade-desc">짧은 이야기 읽기 · 조사 이/가·을/를</div>
+      </button>
+      <button class="grade-card" data-grade="2">
+        <div class="grade-num">초2</div>
+        <div class="grade-desc">이야기 읽기 · 기초 맞춤법 · 속담</div>
+      </button>
+      <button class="grade-card" data-grade="3">
+        <div class="grade-num">초3</div>
+        <div class="grade-desc">독해 · 되/돼 구분 · 속담</div>
+      </button>
+      <button class="grade-card" data-grade="4">
+        <div class="grade-num">초4</div>
+        <div class="grade-desc">글의 중심 생각 · 로서/로써 · 사자성어</div>
+      </button>
+      <button class="grade-card" data-grade="5">
+        <div class="grade-num">초5</div>
+        <div class="grade-desc">주장하는 글 · 높임법 · 사자성어</div>
+      </button>
+      <button class="grade-card" data-grade="6">
+        <div class="grade-num">초6</div>
+        <div class="grade-desc">문단 독해 · 헷갈리는 맞춤법 · 사자성어</div>
+      </button>
+    </div>
+    <div class="npc-tip">
+      <img src="assets/npc_owl.jpg" alt="박사 부엉이">
+      <div class="npc-tip-bubble"><b>박사 부엉이:</b> 학년을 고르면 오늘의 글이 바로 나와! 매일 읽으면 등급이 쭉쭉 올라가.</div>
+    </div>
+    <button id="btn-goto-restore-onboarding" class="link-btn backup-link">이미 다른 기기에 기록이 있나요? 코드로 이어하기</button>
+  </section>
+
+  <!-- 프로필 선택 -->
+  <section id="screen-profile-picker" class="screen" hidden>
+    <div class="mascot-hero"><img src="assets/npc_owl.jpg" alt="국어랭크 마스코트"></div>
+    <h1>누가 읽을 거예요?</h1>
+    <p class="sub">이 기기에 저장된 프로필 중 하나를 골라주세요.</p>
+    <div id="profile-list" class="profile-list"></div>
+    <button id="btn-add-profile" class="cta-btn">+ 새 프로필 만들기</button>
+    <button id="btn-goto-restore-picker" class="link-btn backup-link">코드로 다른 기록 이어하기</button>
+  </section>
+
+  <!-- 홈 -->
+  <section id="screen-home" class="screen" hidden>
+    <div id="home-nickname" class="home-nickname"></div>
+    <div class="tier-card" id="home-tier-card">
+      <div class="tier-badge"><img id="home-badge" src="" alt=""><div class="pip-row" id="home-pips"></div></div>
+      <div class="tier-info">
+        <div class="tier-name" id="home-tier-name">별사탕</div>
+        <div class="tier-rating"><span id="home-rating">0</span> RP</div>
+      </div>
+      <div class="streak-pill">🔥 <span id="home-streak">0</span>일 연속</div>
+    </div>
+
+    <div class="tier-progress-wrap">
+      <div class="tier-progress-bar"><div class="tier-progress-fill" id="home-progress"></div></div>
+      <div class="tier-progress-label" id="home-progress-label">다음 등급까지 0 RP</div>
+    </div>
+    <p id="home-stories-read" class="home-stories-read"></p>
+
+    <button id="btn-start-reading" class="cta-btn">오늘의 글 읽기</button>
+    <p id="home-session-count" class="session-count"></p>
+    <p id="home-done-msg" class="done-msg" hidden>✅ 오늘 5회를 다 읽었어요! 내일 또 만나요.</p>
+
+    <div class="npc-tip npc-tip-fox">
+      <img src="assets/npc_fox.jpg" alt="친구 여우">
+      <div class="npc-tip-bubble"><b>친구 여우:</b> 오늘도 글 하나 읽고 같이 등급 올리자!</div>
+    </div>
+
+    <div class="home-links">
+      <button id="btn-view-tiers" class="ghost-btn">전체 등급표 보기</button>
+      <button id="btn-view-vocab" class="ghost-btn">내 복습 목록 보기</button>
+      <button id="btn-view-backup" class="link-btn backup-link">다른 기기로 기록 옮기기 / 백업</button>
+    </div>
+  </section>
+
+  <!-- 읽기(튜터링) 화면: 지문 + 오늘의 어휘/맞춤법/속담 -->
+  <section id="screen-reading" class="screen" hidden>
+    <h2 id="reading-title">글 제목</h2>
+    <div id="reading-sentences" class="reading-sentences"></div>
+
+    <h3 class="vocab-heading">오늘의 새 낱말</h3>
+    <div id="reading-vocab" class="vocab-chip-wrap"></div>
+
+    <div id="reading-grammar"></div>
+    <div id="reading-idiom"></div>
+
+    <button id="btn-start-quiz-from-reading" class="cta-btn">문제 풀러 가기</button>
+  </section>
+
+  <!-- 퀴즈 화면 -->
+  <section id="screen-quiz" class="screen" hidden>
+    <div class="quiz-progress-wrap">
+      <div class="quiz-progress-bar"><div class="quiz-progress-fill" id="quiz-progress-fill"></div></div>
+    </div>
+    <p class="quiz-index-label"><span id="quiz-index">1</span> / 10</p>
+
+    <div class="quiz-card">
+      <p class="quiz-question" id="quiz-question">문제</p>
+
+      <div id="quiz-input-wrap" hidden>
+        <input id="quiz-input" type="text" class="quiz-input" placeholder="답을 입력하세요" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false">
+        <button id="btn-submit-answer" class="cta-btn">제출</button>
+      </div>
+
+      <div id="quiz-mc-wrap" class="quiz-mc-wrap" hidden></div>
+    </div>
+
+    <div id="quiz-feedback" class="quiz-feedback" hidden>
+      <img id="quiz-feedback-mascot" class="feedback-mascot" src="assets/mascot.jpg" alt="">
+      <div id="quiz-feedback-text"></div>
+      <div id="quiz-explain" class="quiz-explain" hidden>
+        <h4>💡 이렇게 알아둬요</h4>
+        <p id="quiz-explain-tip"></p>
+        <p id="quiz-explain-example" class="quiz-explain-example"></p>
+      </div>
+      <button id="btn-next-question" class="cta-btn" hidden>다음 문제 →</button>
+    </div>
+  </section>
+
+  <!-- 결과 화면 -->
+  <section id="screen-result" class="screen" hidden>
+    <div class="mascot-result"><img id="result-mascot" src="assets/mascot.jpg" alt="국어랭크 마스코트"></div>
+    <h2 id="result-headline">오늘의 결과</h2>
+    <p id="result-story-title" class="sub"></p>
+    <div class="result-stats">
+      <div class="result-stat">
+        <div class="result-stat-num" id="result-score">0/10</div>
+        <div class="result-stat-label">정답</div>
+      </div>
+      <div class="result-stat">
+        <div class="result-stat-num" id="result-delta">+0</div>
+        <div class="result-stat-label">RP 변화</div>
+      </div>
+      <div class="result-stat">
+        <div class="result-stat-num" id="result-streak">0일</div>
+        <div class="result-stat-label">연속 출석</div>
+      </div>
+    </div>
+    <div id="result-levelup" class="levelup-banner" hidden>🎉 등급 승급! <span id="levelup-tier"></span></div>
+
+    <button id="btn-back-home" class="link-btn">홈으로</button>
+  </section>
+
+  <!-- 등급표 화면 -->
+  <section id="screen-tiers" class="screen" hidden>
+    <h2>전체 등급표</h2>
+    <div id="tier-table" class="tier-table"></div>
+    <button class="link-btn back-link" data-back="home">← 홈으로</button>
+  </section>
+
+  <!-- 복습 목록 -->
+  <section id="screen-vocab" class="screen" hidden>
+    <h2>내 복습 목록</h2>
+    <div id="vocab-list" class="weak-list"></div>
+    <button class="link-btn back-link" data-back="home">← 홈으로</button>
+  </section>
+
+  <!-- 백업/이어하기 -->
+  <section id="screen-backup" class="screen" hidden>
+    <h2>기록 백업 / 이어하기</h2>
+    <p class="sub">로그인 없이도 이 코드로 기록을 다른 기기로 옮길 수 있어요. 코드를 카톡으로 자신에게 보내두면 언제든 이어할 수 있어요.</p>
+    <div class="backup-section">
+      <h3>1. 이 프로필 백업 코드</h3>
+      <textarea id="backup-export-code" class="backup-textarea" readonly rows="4"></textarea>
+      <button id="btn-copy-backup" class="cta-btn">코드 복사하기</button>
+    </div>
+    <div class="backup-section">
+      <h3>2. 다른 기기의 코드로 이어하기</h3>
+      <textarea id="backup-import-code" class="backup-textarea" placeholder="여기에 백업 코드를 붙여넣으세요" rows="4"></textarea>
+      <button id="btn-import-backup" class="ghost-btn">코드로 가져오기</button>
+    </div>
+    <button class="link-btn back-link" data-back="home">← 홈으로</button>
+  </section>
+
+</div>
+<script src="kor-grammar.js"></script>
+<script src="kor-passages.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
