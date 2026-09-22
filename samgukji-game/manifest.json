@@ -1,0 +1,14 @@
+{
+  "name": "군웅쟁패",
+  "short_name": "군웅쟁패",
+  "description": "후한 말 천하를 무대로 한 오리지널 턴제 전략 게임",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#1a1410",
+  "theme_color": "#1a1410",
+  "orientation": "portrait",
+  "icons": [
+    { "src": "assets/icon.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "assets/icon.png", "sizes": "512x512", "type": "image/png" }
+  ]
+}

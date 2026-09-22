@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>군웅쟁패</title>
+<meta name="theme-color" content="#1a1410">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="assets/icon.png">
+<link rel="apple-touch-icon" href="assets/icon.png">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div id="app">
+
+  <!-- Title screen -->
+  <section id="screen-title" class="screen">
+    <div class="title-wrap">
+      <img class="title-art" src="assets/title-art.png" alt="" onerror="this.style.visibility='hidden'">
+      <h1 class="game-title">群雄爭覇<br><span>군웅쟁패</span></h1>
+      <p class="title-sub">천하가 어지러운 후한 말, 그대는 어느 세력을 이끌 것인가</p>
+      <button id="btn-new-game" class="primary-btn">새 게임 시작</button>
+      <button id="btn-continue" class="ghost-btn">이어하기</button>
+    </div>
+  </section>
+
+  <!-- Faction pick -->
+  <section id="screen-faction-pick" class="screen" hidden>
+    <h2 class="section-title">세력을 선택하세요</h2>
+    <div class="faction-grid">
+      <button class="faction-card" data-faction="cao" style="--fc:#c0392b">
+        <img class="faction-banner" src="assets/banners/cao.png" alt="" onerror="this.style.visibility='hidden'">
+        <div class="fc-name">조위</div><div class="fc-lord">조조</div>
+        <div class="fc-desc">중원의 강자. 균형 잡힌 내정과 군사력.</div>
+      </button>
+      <button class="faction-card" data-faction="liu" style="--fc:#2980b9">
+        <img class="faction-banner" src="assets/banners/liu.png" alt="" onerror="this.style.visibility='hidden'">
+        <div class="fc-name">촉한</div><div class="fc-lord">유비</div>
+        <div class="fc-desc">인화(人和)로 뭉친 세력. 뛰어난 참모진.</div>
+      </button>
+      <button class="faction-card" data-faction="sun" style="--fc:#27ae60">
+        <img class="faction-banner" src="assets/banners/sun.png" alt="" onerror="this.style.visibility='hidden'">
+        <div class="fc-name">동오</div><div class="fc-lord">손권</div>
+        <div class="fc-desc">강동의 지배자. 수비에 강함.</div>
+      </button>
+      <button class="faction-card" data-faction="yuan" style="--fc:#8e44ad">
+        <img class="faction-banner" src="assets/banners/yuan.png" alt="" onerror="this.style.visibility='hidden'">
+        <div class="fc-name">원가</div><div class="fc-lord">원소</div>
+        <div class="fc-desc">하북의 명문가. 넓은 영토로 시작.</div>
+      </button>
+    </div>
+  </section>
+
+  <!-- Main game screen -->
+  <section id="screen-game" class="screen" hidden>
+    <header class="topbar">
+      <div class="hud-left">
+        <div id="hud-faction" class="hud-faction"></div>
+        <div id="hud-year" class="hud-year"></div>
+      </div>
+      <button id="btn-title" class="link-btn">타이틀</button>
+    </header>
+    <div id="hud-stats" class="hud-stats"></div>
+
+    <div id="map-list" class="map-list"></div>
+
+    <div class="log-panel">
+      <h3>사건 기록</h3>
+      <ul id="log-list" class="log-list"></ul>
+    </div>
+
+    <footer class="bottombar">
+      <button id="btn-roster" class="ghost-btn small">장수 목록</button>
+      <button id="btn-recruit-talent" class="ghost-btn small">인재 등용</button>
+      <button id="btn-end-turn" class="primary-btn">턴 종료</button>
+      <button id="btn-new-game-2" class="ghost-btn small">새 게임</button>
+    </footer>
+  </section>
+
+  <!-- City modal -->
+  <div id="city-modal" class="modal" hidden>
+    <div class="modal-content">
+      <button id="city-modal-close" class="modal-close">✕</button>
+      <div id="city-modal-body"></div>
+    </div>
+  </div>
+
+  <!-- Create general modal (장수 창조) -->
+  <div id="create-general-modal" class="modal" hidden>
+    <div class="modal-content">
+      <button id="create-general-modal-close" class="modal-close">✕</button>
+      <div id="create-general-modal-body"></div>
+    </div>
+  </div>
+
+  <!-- Story event modal -->
+  <div id="story-modal" class="modal" hidden>
+    <div class="modal-content center story-modal-content">
+      <h2 id="story-title"></h2>
+      <p id="story-text"></p>
+      <div id="story-choices" class="story-choices"></div>
+    </div>
+  </div>
+
+  <!-- Battle report modal -->
+  <div id="battle-modal" class="modal" hidden>
+    <div class="modal-content">
+      <button id="battle-modal-close" class="modal-close">✕</button>
+      <div id="battle-modal-body"></div>
+    </div>
+  </div>
+
+  <!-- Roster modal (내 장수 목록) -->
+  <div id="roster-modal" class="modal" hidden>
+    <div class="modal-content">
+      <button id="roster-modal-close" class="modal-close">✕</button>
+      <h2>내 장수 목록</h2>
+      <div id="roster-modal-body"></div>
+    </div>
+  </div>
+
+  <!-- Recruit talent modal (인재 등용) -->
+  <div id="recruit-modal" class="modal" hidden>
+    <div class="modal-content">
+      <button id="recruit-modal-close" class="modal-close">✕</button>
+      <h2>인재 등용</h2>
+      <p class="hint-text">내 영지와 인접한 곳에 있는 재야 인재에게 등용을 시도할 수 있습니다. (시도당 금 300 소모)</p>
+      <div id="recruit-modal-body"></div>
+    </div>
+  </div>
+
+  <!-- Item equip modal (always last so it stacks above the roster/city modals it's opened from) -->
+  <div id="item-modal" class="modal" hidden>
+    <div class="modal-content">
+      <button id="item-modal-close" class="modal-close">✕</button>
+      <div id="item-modal-body"></div>
+    </div>
+  </div>
+
+  <!-- Game over modal -->
+  <div id="gameover-modal" class="modal" hidden>
+    <div class="modal-content center">
+      <h2 id="gameover-title"></h2>
+      <p id="gameover-desc"></p>
+      <button id="gameover-restart" class="primary-btn">새 게임 시작</button>
+    </div>
+  </div>
+
+</div>
+<script src="data.js"></script>
+<script src="battle.js"></script>
+<script src="app.js"></script>
+<script src="ui.js"></script>
+<script>
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", () => navigator.serviceWorker.register("sw.js").catch(() => {}));
+}
+</script>
+</body>
+</html>
