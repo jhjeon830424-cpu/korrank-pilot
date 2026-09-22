@@ -1,9 +1,8 @@
-name: Deploy Samgukji Game to Pages
+name: Deploy Site to Pages (국어랭크 + 군웅쟁패)
 
 on:
   push:
     branches: [claude/sangoku-4-mobile-editor-zq37xo]
-    paths: ["samgukji-game/**"]
   workflow_dispatch:
 
 permissions:
@@ -28,7 +27,7 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: samgukji-game
+          path: .
 
       - name: Deploy to GitHub Pages
         id: deployment
