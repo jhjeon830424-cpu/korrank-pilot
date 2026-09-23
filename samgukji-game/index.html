@@ -62,7 +62,13 @@
     </header>
     <div id="hud-stats" class="hud-stats"></div>
 
-    <div id="map-list" class="map-list"></div>
+    <div class="map-toggle-row">
+      <button class="map-toggle-btn active" data-mode="svg">지도</button>
+      <button class="map-toggle-btn" data-mode="list">목록</button>
+      <span class="map-hint">↕↔ 스크롤해서 전체 지도 보기</span>
+    </div>
+    <div id="map-view-svg" class="map-view-svg"></div>
+    <div id="map-view-list" class="map-list" hidden></div>
 
     <div class="log-panel">
       <h3>사건 기록</h3>

@@ -58,6 +58,28 @@ html, body {
 .hud-year { font-size: 12px; color: var(--muted); }
 .hud-stats { font-size: 12px; color: var(--muted); padding: 8px 0; }
 
+.map-toggle-row { display: flex; gap: 6px; margin-bottom: 6px; }
+.map-toggle-btn {
+  padding: 5px 12px; border-radius: 8px; border: 1px solid var(--border); background: var(--panel);
+  color: var(--muted); font-size: 12px; cursor: pointer;
+}
+.map-toggle-btn.active { background: var(--accent); color: #221a10; border-color: var(--accent); font-weight: 700; }
+.map-hint { font-size: 10px; color: var(--muted); align-self: center; margin-left: 4px; }
+
+.map-view-svg {
+  overflow: auto; -webkit-overflow-scrolling: touch; margin-bottom: 12px;
+  background: var(--bg) url('assets/map-bg.jpg') center/cover no-repeat;
+  border-radius: 10px; max-height: 46vh;
+}
+.map-svg { display: block; }
+.map-edge { stroke: #6b5636; stroke-width: 2; opacity: 0.7; }
+.map-region-label { font-size: 13px; fill: var(--accent); font-weight: 700; opacity: 0.85; }
+.map-city-node { cursor: pointer; }
+.map-node-circle { stroke: #1a1410; stroke-width: 1.5; }
+.map-node-circle.mine { stroke: #f0cf87; stroke-width: 3; }
+.map-node-circle.pass { stroke-dasharray: 2,2; }
+.map-city-label { font-size: 9px; fill: var(--text); paint-order: stroke; stroke: #1a1410; stroke-width: 2px; }
+
 .map-list {
   flex: 1; overflow-y: auto; margin-bottom: 12px;
   background: var(--bg) url('assets/map-bg.jpg') center/cover no-repeat;

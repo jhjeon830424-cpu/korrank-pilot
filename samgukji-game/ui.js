@@ -58,6 +58,7 @@ function wireEvents() {
   el("#item-modal-close").addEventListener("click", () => { el("#item-modal").hidden = true; });
   el("#btn-roster").addEventListener("click", () => { el("#roster-modal").hidden = false; renderRoster(); });
   el("#btn-recruit-talent").addEventListener("click", () => { el("#recruit-modal").hidden = false; renderRecruitTalent(); });
+  elAll(".map-toggle-btn").forEach(btn => btn.addEventListener("click", () => setMapViewMode(btn.dataset.mode)));
 }
 
 function renderAll() {
@@ -82,10 +83,101 @@ function renderTopbar() {
   el("#hud-stats").textContent = `영지 ${mine.length} · 장수 ${totalGenerals} · 금 ${fmt(totalGold)} · 식량 ${fmt(totalFood)} · 병력 ${fmt(totalTroops)}`;
 }
 
-// ---- Map: grouped by historical region, since the city-level map is too dense for a spatial grid ----
+// ---- Map: schematic SVG map (default) with a region-grouped list as an alternate view ----
+let mapViewMode = "svg"; // "svg" | "list"
+
 function renderMap() {
-  const mapEl = el("#map-list");
-  mapEl.innerHTML = REGIONS.map(region => {
+  el("#map-view-svg").hidden = mapViewMode !== "svg";
+  el("#map-view-list").hidden = mapViewMode !== "list";
+  if (mapViewMode === "svg") renderMapSvg(); else renderMapList();
+}
+
+function setMapViewMode(mode) {
+  mapViewMode = mode;
+  elAll(".map-toggle-btn").forEach(b => b.classList.toggle("active", b.dataset.mode === mode));
+  renderMap();
+}
+
+// city coordinates: cities are arranged in a small ring around their region's
+// anchor point; passes sit at the midpoint of the two cities they connect
+function computeCityLayout() {
+  const positions = {};
+  const byRegion = {};
+  Object.values(state.cities).filter(c => !c.isPass).forEach(c => {
+    (byRegion[c.region] = byRegion[c.region] || []).push(c);
+  });
+  for (const regionId in byRegion) {
+    const cities = byRegion[regionId];
+    const anchor = REGION_ANCHORS[regionId] || { x: 320, y: 380 };
+    const n = cities.length;
+    cities.forEach((c, i) => {
+      if (n === 1) { positions[c.id] = { x: anchor.x, y: anchor.y }; return; }
+      const angle = (i / n) * Math.PI * 2 - Math.PI / 2;
+      positions[c.id] = { x: anchor.x + Math.cos(angle) * 34, y: anchor.y + Math.sin(angle) * 34 };
+    });
+  }
+  Object.values(state.cities).filter(c => c.isPass).forEach(c => {
+    const pts = c.neighbors.map(id => positions[id]).filter(Boolean);
+    if (pts.length >= 2) {
+      positions[c.id] = { x: (pts[0].x + pts[1].x) / 2, y: (pts[0].y + pts[1].y) / 2 };
+    } else {
+      const anchor = REGION_ANCHORS[c.region] || { x: 320, y: 380 };
+      positions[c.id] = { x: anchor.x, y: anchor.y };
+    }
+  });
+  return positions;
+}
+
+function renderMapSvg() {
+  const positions = computeCityLayout();
+  const cities = Object.values(state.cities);
+
+  let lines = "";
+  const seen = new Set();
+  cities.forEach(c => {
+    c.neighbors.forEach(nid => {
+      const key = [c.id, nid].sort().join("|");
+      if (seen.has(key)) return;
+      seen.add(key);
+      const p1 = positions[c.id], p2 = positions[nid];
+      if (!p1 || !p2) return;
+      lines += `<line x1="${p1.x.toFixed(1)}" y1="${p1.y.toFixed(1)}" x2="${p2.x.toFixed(1)}" y2="${p2.y.toFixed(1)}" class="map-edge"/>`;
+    });
+  });
+
+  const regionLabels = REGIONS.map(r => {
+    const a = REGION_ANCHORS[r.id];
+    if (!a) return "";
+    return `<text x="${a.x}" y="${a.y - 44}" class="map-region-label" text-anchor="middle">${escapeHtml(r.name)}</text>`;
+  }).join("");
+
+  const nodes = cities.map(c => {
+    const p = positions[c.id];
+    if (!p) return "";
+    const faction = state.factions[c.owner];
+    const mine = c.owner === state.playerFaction;
+    const r = c.isPass ? 7 : 11;
+    return `
+      <g class="map-city-node" data-city="${c.id}" transform="translate(${p.x.toFixed(1)},${p.y.toFixed(1)})">
+        <circle r="${r}" fill="${faction.color}" class="map-node-circle${mine ? " mine" : ""}${c.isPass ? " pass" : ""}"/>
+        <text y="${r + 11}" class="map-city-label" text-anchor="middle">${c.isPass ? "⛰" : ""}${escapeHtml(c.name)}</text>
+      </g>`;
+  }).join("");
+
+  el("#map-view-svg").innerHTML = `
+    <svg viewBox="0 0 640 760" width="640" height="760" class="map-svg">
+      <g>${lines}</g>
+      <g>${regionLabels}</g>
+      <g>${nodes}</g>
+    </svg>`;
+
+  elAll(".map-city-node").forEach(node => {
+    node.addEventListener("click", () => openCityModal(node.dataset.city));
+  });
+}
+
+function renderMapList() {
+  el("#map-view-list").innerHTML = REGIONS.map(region => {
     const cities = Object.values(state.cities).filter(c => c.region === region.id && !c.isPass);
     const passes = Object.values(state.cities).filter(c => c.region === region.id && c.isPass);
     const chips = [...cities, ...passes].map(c => cityChipHtml(c)).join("");

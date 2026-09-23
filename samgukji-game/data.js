@@ -24,6 +24,26 @@ const REGIONS = [
   { id: "yangzhou", name: "양주(揚)" }, { id: "jiaozhou", name: "교주" }
 ];
 
+// ---- Region anchor points for the schematic map (original layout, using real
+// relative compass positions of the Han-era provinces; not traced from any
+// copyrighted map image). viewBox is 0 0 640 760. ----
+const REGION_ANCHORS = {
+  youzhou:   { x: 460, y: 60 },
+  jizhou:    { x: 370, y: 130 },
+  bingzhou:  { x: 260, y: 140 },
+  qingzhou:  { x: 470, y: 175 },
+  yanzhou:   { x: 400, y: 250 },
+  yuzhou:    { x: 320, y: 295 },
+  xuzhou:    { x: 470, y: 295 },
+  sili:      { x: 260, y: 260 },
+  yongzhou:  { x: 165, y: 260 },
+  liangzhou: { x: 75,  y: 225 },
+  yizhou:    { x: 135, y: 400 },
+  jingzhou:  { x: 285, y: 405 },
+  yangzhou:  { x: 445, y: 405 },
+  jiaozhou:  { x: 320, y: 540 }
+};
+
 // ---- Cities: real Han-dynasty commandery/county seats (public-domain historical geography) ----
 // plus a handful of famous strategic passes (관문) from history/the classic novel.
 const CITIES = [
